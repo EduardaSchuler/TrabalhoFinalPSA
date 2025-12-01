@@ -1,9 +1,17 @@
+
 package com.progsoftaplic.TrabalhoFinal.repository;
 
-import com.estac.domain.Ticket;
+import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.Optional;
+import org.springframework.stereotype.Repository;
 
-public interface TicketRepository extends JpaRepository<Ticket, Long> {
-    Optional<Ticket> findByCodigo(String codigo);
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Repository
+public interface TicketRepository extends JpaRepository<Ticket, String> {
+
+    List<Ticket> findByPagoTrueAndSaidaBetween(LocalDateTime inicio, LocalDateTime fim);
+    List<Ticket> findByPagoTrueAndSaidaBetweenOrderBySaidaAsc(LocalDateTime inicio, LocalDateTime fim);
+    List<Ticket> findByPlaca(String placa);
 }

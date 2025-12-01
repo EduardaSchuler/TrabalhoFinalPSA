@@ -37,6 +37,12 @@ public class Ticket {
     @Column(precision = 10, scale = 2)
     private BigDecimal valor;
 
+    public Ticket(String codigo, String placa, LocalDateTime entrada) {
+        this.codigo = codigo;
+        this.placa = placa;
+        this.entrada = entrada;
+    }
+
 
     public String getCodigo() {
         return codigo;

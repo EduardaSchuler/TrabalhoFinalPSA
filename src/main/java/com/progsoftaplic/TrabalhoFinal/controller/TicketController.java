@@ -3,18 +3,21 @@ package com.progsoftaplic.TrabalhoFinal.controller;
 
 import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
 import com.progsoftaplic.TrabalhoFinal.domain.Pagamento;
-import com.progsoftaplic.TrabalhoFinal.dto.*;
 import com.progsoftaplic.TrabalhoFinal.service.TicketService;
-import javax.validation.Valid;
+import com.progsoftaplic.TrabalhoFinal.service.dto.PagamentoResponseDTO;
+import com.progsoftaplic.TrabalhoFinal.service.dto.TicketCreateRequestDTO;
+import com.progsoftaplic.TrabalhoFinal.service.dto.TicketResponseDTO;
+import com.progsoftaplic.TrabalhoFinal.service.dto.TicketValorResponseDTO;
+import com.progsoftaplic.TrabalhoFinal.service.dto.ValidarSaidaResponseDTO;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
-import com.progsoftaplic.TrabalhoFinal.service.TicketService;
-import com.progsoftaplic.TrabalhoFinal.service.dto.TicketRequestDTO;
+
 
 @RestController
 @RequestMapping("/tickets")
@@ -28,7 +31,7 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<TicketResponseDTO> criarTicket(@Valid @RequestBody TicketCreateRequestDTO req) {
+    public ResponseEntity<TicketResponseDTO> criarTicket(@Validated @RequestBody TicketCreateRequestDTO req) {
         Ticket ticket = ticketService.criarTicket(req.getPlaca());
         return ResponseEntity.ok(toDTO(ticket));
     }

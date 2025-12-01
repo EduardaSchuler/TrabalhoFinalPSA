@@ -13,7 +13,6 @@ public class Pagamento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
     @Column(nullable = false)
     private String ticketCodigo;
 

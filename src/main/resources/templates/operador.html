@@ -248,7 +248,7 @@
             }
 
             try {
-                const response = await fetch(`/tickets/calcular/${encodeURIComponent(codigo)}`);
+                const response = await fetch(`/tickets/${encodeURIComponent(codigo)}/valor`);
                 const data = await response.json();
 
                 if (response.ok) {
@@ -289,7 +289,7 @@
             }
 
             try {
-                const response = await fetch(`/tickets/calcular/${encodeURIComponent(codigo)}`);
+                const response = await fetch(`/tickets/${encodeURIComponent(codigo)}/valor`);
                 const data = await response.json();
 
                 if (response.ok) {
@@ -327,18 +327,18 @@
             const btnPagar = document.getElementById('btnPagar');
             
             try {
-                const response = await fetch(`/tickets/pagar/${encodeURIComponent(codigo)}`, {
+                const response = await fetch(`/tickets/${encodeURIComponent(codigo)}/pay`, {
                     method: 'POST'
                 });
-                const data = await response.json();
-
-                if (response.ok && data.sucesso) {
-                    mostrarResultado(resultado, '✅ ' + data.mensagem + ' - Ticket liberado para saída!', 'success');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    mostrarResultado(resultado, '✅ Pagamento processado com sucesso! Ticket liberado para saída!', 'success');
                     document.getElementById('codigoPagamento').value = '';
                     infoDisplay.style.display = 'none';
                     btnPagar.style.display = 'none';
                 } else {
-                    mostrarResultado(resultado, '❌ ' + (data.erro || 'Erro ao processar pagamento'), 'error');
+                    mostrarResultado(resultado, '❌ Erro ao processar pagamento. Ticket inválido ou já pago.', 'error');
                 }
             } catch (error) {
                 mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');

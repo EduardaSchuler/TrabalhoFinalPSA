@@ -213,7 +213,7 @@
             }
 
             try {
-                const response = await fetch('/tickets/entrada', {
+                const response = await fetch('/tickets', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -248,7 +248,7 @@
             }
 
             try {
-                const response = await fetch(`/tickets/saida/${encodeURIComponent(codigo)}`, {
+                const response = await fetch(`/tickets/${encodeURIComponent(codigo)}/validate`, {
                     method: 'POST'
                 });
 
@@ -258,7 +258,7 @@
                     mostrarResultado(resultado, '✅ Saída liberada! Cancela aberta.', 'success');
                     document.getElementById('codigoSaida').value = '';
                 } else {
-                    const mensagem = data.erro || 'Ticket não pago ou inválido. Procure o caixa de pagamento.';
+                    const mensagem = data.motivo || 'Ticket não pago ou inválido. Procure o caixa de pagamento.';
                     mostrarResultado(resultado, '❌ ' + mensagem, 'error');
                 }
             } catch (error) {

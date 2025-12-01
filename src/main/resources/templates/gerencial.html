@@ -346,11 +346,11 @@
             const hoje = new Date().toISOString().split('T')[0];
             
             try {
-                const response = await fetch(`/tickets/relatorio/dia?data=${hoje}`);
+                const response = await fetch(`/report/dia?data=${hoje}`);
                 if (response.ok) {
                     const data = await response.json();
                     const valor = parseFloat(data.totalRecebido);
-                    const quantidade = data.quantidadeTickets;
+                    const quantidade = data.quantidadeTicketsPagos;
                     const media = quantidade > 0 ? valor / quantidade : 0;
                     
                     document.getElementById('hojeValor').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
@@ -373,12 +373,12 @@
             }
 
             try {
-                const response = await fetch(`/tickets/relatorio/dia?data=${data}`);
+                const response = await fetch(`/report/dia?data=${data}`);
                 const dadosRelatorio = await response.json();
 
                 if (response.ok) {
                     const valor = parseFloat(dadosRelatorio.totalRecebido);
-                    const quantidade = dadosRelatorio.quantidadeTickets;
+                    const quantidade = dadosRelatorio.quantidadeTicketsPagos;
                     const media = quantidade > 0 ? valor / quantidade : 0;
                     
                     document.getElementById('valorDia').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
@@ -407,12 +407,12 @@
             const statsDiv = document.getElementById('statsMes');
 
             try {
-                const response = await fetch(`/tickets/relatorio/mes?ano=${ano}&mes=${mes}`);
+                const response = await fetch(`/report/mes?mes=${ano}-${String(mes).padStart(2, '0')}`);
                 const dadosRelatorio = await response.json();
 
                 if (response.ok) {
                     const valor = parseFloat(dadosRelatorio.totalRecebido);
-                    const quantidade = dadosRelatorio.quantidadeTickets;
+                    const quantidade = dadosRelatorio.quantidadeTicketsPagos;
                     const media = quantidade > 0 ? valor / quantidade : 0;
                     
                     document.getElementById('valorMes').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;

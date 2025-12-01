@@ -1,6 +1,11 @@
+
 package com.progsoftaplic.TrabalhoFinal.service.dto;
 
-public class TicketRequestDTO {
+import javax.validation.constraints.NotBlank;
+
+public class TicketCreateRequestDTO {
+
+    @NotBlank(message = "A placa do veículo é obrigatória.")
     private String placa;
 
     public String getPlaca() {
@@ -10,5 +15,4 @@ public class TicketRequestDTO {
     public void setPlaca(String placa) {
         this.placa = placa;
     }
-    
 }

@@ -2,7 +2,9 @@
 package com.progsoftaplic.TrabalhoFinal.service;
 
 import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
+import com.progsoftaplic.TrabalhoFinal.domain.Pagamento;
 import com.progsoftaplic.TrabalhoFinal.repository.TicketRepository;
+import com.progsoftaplic.TrabalhoFinal.repository.PagamentoRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,9 +18,11 @@ import java.util.UUID;
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final PagamentoRepository pagamentoRepository;
 
-    public TicketService(TicketRepository ticketRepository) {
+    public TicketService(TicketRepository ticketRepository, PagamentoRepository pagamentoRepository) {
         this.ticketRepository = ticketRepository;
+        this.pagamentoRepository = pagamentoRepository;
     }
 
     public Ticket criarTicket(String placa) {
@@ -47,7 +51,9 @@ public class TicketService {
             return true;
         }
 
-        return ticket.isPago(); 
+        // Se não for cortesia, só libera se já estiver pago
+        ticketRepository.save(ticket);
+        return ticket.isPago();
     }
 
     public BigDecimal calcularValor(String codigo) {
@@ -77,17 +83,41 @@ public class TicketService {
         ticket.setValor(valor);
         ticket.setPago(true);
         ticketRepository.save(ticket);
+
+        // Registrar pagamento
+        Pagamento pagamento = new Pagamento(codigo, valor);
+        pagamentoRepository.save(pagamento);
+
         return true;
     }
 
     public BigDecimal totalRecebido(LocalDateTime inicio, LocalDateTime fim) {
-        List<Ticket> pagos = ticketRepository.findByPagoTrueAndSaidaBetween(inicio, fim);
-        return pagos.stream()
-                .map(Ticket::getValor)
+        List<Pagamento> pagamentos = pagamentoRepository.findByDataPagamentoBetween(inicio, fim);
+        return pagamentos.stream()
+                .map(Pagamento::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     public long quantidadeTicketsPagos(LocalDateTime inicio, LocalDateTime fim) {
-        return ticketRepository.findByPagoTrueAndSaidaBetween(inicio, fim).size();
+        return pagamentoRepository.findByDataPagamentoBetween(inicio, fim).size();
+    }
+    
+        
+    public Optional<Ticket> buscarPorCodigo(String codigo) {
+        return ticketRepository.findById(codigo);
+    }
+
+    public Pagamento pagarETrazerPagamento(String codigo) {
+        Optional<Ticket> optTicket = ticketRepository.findById(codigo);
+        if (optTicket.isEmpty()) return null;
+
+        Ticket ticket = optTicket.get();
+        BigDecimal valor = calcularValor(codigo);
+        ticket.setValor(valor);
+        ticket.setPago(true);
+        ticketRepository.save(ticket);
+
+        Pagamento pagamento = new Pagamento(codigo, valor);
+        return pagamentoRepository.save(pagamento);
     }
 }

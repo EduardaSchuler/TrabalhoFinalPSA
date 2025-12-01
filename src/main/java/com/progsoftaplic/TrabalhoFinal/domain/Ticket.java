@@ -8,13 +8,24 @@ import javax.persistence.Id;
 
 @Entity
 public class Ticket {
+    
     @Id
     private String codigo;
+
+    @Column(nullable = false)
     private String placa;
+
+    @Column(nullable = false)
     private LocalDateTime entrada;
+
     private LocalDateTime saida;
+
+    @Column(nullable = false)
     private boolean pago;
+
+    @Column(precision = 10, scale = 2)
     private BigDecimal valor;
+
 
     public String getCodigo() {
         return codigo;

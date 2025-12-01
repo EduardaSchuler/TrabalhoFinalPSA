@@ -1,10 +1,10 @@
-
 package com.progsoftaplic.TrabalhoFinal.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
 public class Ticket {
@@ -43,13 +43,14 @@ public class Ticket {
     public boolean isPago() {
         return pago;
     }
+
+    public void setPago(boolean pago) {
+        this.pago = pago;
+    }
     public BigDecimal getValor() {
         return valor;
     }
     public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
-
 }
-
-

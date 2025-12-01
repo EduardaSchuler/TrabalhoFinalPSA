@@ -1,0 +1,13 @@
+-- Script de inicialização do banco de dados H2
+-- Este arquivo será executado automaticamente pelo Spring Boot
+
+-- Inserir alguns tickets de teste
+INSERT INTO TICKET (CODIGO, PLACA, ENTRADA, SAIDA, PAGO, VALOR) VALUES 
+('550e8400-e29b-41d4-a716-446655440001', 'ABC1234', DATEADD('HOUR', -2, NOW()), DATEADD('MINUTE', -30, NOW()), true, 9.50),
+('550e8400-e29b-41d4-a716-446655440002', 'DEF5678', DATEADD('HOUR', -1, NOW()), null, false, 0.00),
+('550e8400-e29b-41d4-a716-446655440003', 'GHI9012', DATEADD('HOUR', -3, NOW()), DATEADD('HOUR', -1, NOW()), true, 14.00),
+('550e8400-e29b-41d4-a716-446655440004', 'JKL3456', DATEADD('MINUTE', -45, NOW()), DATEADD('MINUTE', -15, NOW()), true, 5.00),
+('550e8400-e29b-41d4-a716-446655440005', 'MNO7890', DATEADD('MINUTE', -10, NOW()), null, false, 0.00),
+('550e8400-e29b-41d4-a716-446655440006', 'PQR1234', DATEADD('HOUR', -4, NOW()), DATEADD('MINUTE', -90, NOW()), true, 18.50),
+('550e8400-e29b-41d4-a716-446655440007', 'STU5678', DATEADD('MINUTE', -30, NOW()), null, false, 0.00),
+('550e8400-e29b-41d4-a716-446655440008', 'VWX9012', DATEADD('HOUR', -5, NOW()), DATEADD('HOUR', -2, NOW()), true, 23.00);

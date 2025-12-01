@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estacionamento - Operador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover {
+            background: #cbd5e0;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin-right: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .btn.success {
+            background: #48bb78;
+        }
+
+        .btn.success:hover {
+            background: #38a169;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+        }
+
+        .valor-display {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .valor-numero {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .regras {
+            background: #edf2f7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .regras h4 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .regras ul {
+            margin-left: 1rem;
+            color: #4a5568;
+        }
+
+        .regras li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Operador do Caixa</h1>
+            <p style="color: #718096;">Cálculo de valores e processamento de pagamentos</p>
+        </div>
+
+        <div class="nav">
+            <a href="/">← Menu Principal</a>
+            <a href="/cancela">Cancela</a>
+            <a href="/gerencial">Gerencial</a>
+        </div>
+
+        <!-- Seção de Cálculo -->
+        <div class="section">
+            <h2>🧮 Cálculo de Valor</h2>
+            <div class="form-group">
+                <label for="codigoCalculo">Código do Ticket:</label>
+                <input type="text" id="codigoCalculo" placeholder="Cole ou digite o código do ticket">
+            </div>
+            <button class="btn" onclick="calcularValor()">Calcular Valor</button>
+            
+            <div id="valorCalculado" class="valor-display" style="display: none;">
+                <div class="valor-numero" id="valorNumero">R$ 0,00</div>
+                <p id="valorTexto"></p>
+            </div>
+            
+            <div id="resultadoCalculo" class="result"></div>
+
+            <div class="regras">
+                <h4>📋 Regras de Cobrança:</h4>
+                <ul>
+                    <li><strong>15 minutos:</strong> Cortesia (gratuito)</li>
+                    <li><strong>Até 1 hora:</strong> R$ 5,00 (valor fixo)</li>
+                    <li><strong>Acima de 1 hora:</strong> R$ 5,00 + R$ 4,50 por hora adicional</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Seção de Pagamento -->
+        <div class="section">
+            <h2>💳 Processar Pagamento</h2>
+            <div class="form-group">
+                <label for="codigoPagamento">Código do Ticket:</label>
+                <input type="text" id="codigoPagamento" placeholder="Cole ou digite o código do ticket">
+            </div>
+            <button class="btn" onclick="calcularParaPagamento()">Verificar Valor</button>
+            <button class="btn success" onclick="processarPagamento()" id="btnPagar" style="display: none;">Confirmar Pagamento</button>
+            
+            <div id="infoPagamento" class="valor-display" style="display: none;">
+                <div class="valor-numero" id="valorPagamento">R$ 0,00</div>
+                <p id="textoPagamento"></p>
+            </div>
+            
+            <div id="resultadoPagamento" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        async function calcularValor() {
+            const codigo = document.getElementById('codigoCalculo').value.trim();
+            const resultado = document.getElementById('resultadoCalculo');
+            const valorDisplay = document.getElementById('valorCalculado');
+            
+            if (!codigo) {
+                mostrarResultado(resultado, 'Por favor, informe o código do ticket', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tickets/calcular/${encodeURIComponent(codigo)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const valor = parseFloat(data.valor);
+                    document.getElementById('valorNumero').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    
+                    let textoValor = '';
+                    if (valor === 0) {
+                        textoValor = '🆓 Período de cortesia - Saída gratuita';
+                    } else if (valor === 5.00) {
+                        textoValor = '⏰ Permanência até 1 hora - Valor fixo';
+                    } else {
+                        textoValor = '⏰ Permanência acima de 1 hora - Valor com acréscimo';
+                    }
+                    
+                    document.getElementById('valorTexto').textContent = textoValor;
+                    valorDisplay.style.display = 'block';
+                    resultado.style.display = 'none';
+                } else {
+                    valorDisplay.style.display = 'none';
+                    mostrarResultado(resultado, data.erro || 'Erro ao calcular valor', 'error');
+                }
+            } catch (error) {
+                valorDisplay.style.display = 'none';
+                mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');
+            }
+        }
+
+        async function calcularParaPagamento() {
+            const codigo = document.getElementById('codigoPagamento').value.trim();
+            const resultado = document.getElementById('resultadoPagamento');
+            const infoDisplay = document.getElementById('infoPagamento');
+            const btnPagar = document.getElementById('btnPagar');
+            
+            if (!codigo) {
+                mostrarResultado(resultado, 'Por favor, informe o código do ticket', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tickets/calcular/${encodeURIComponent(codigo)}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    const valor = parseFloat(data.valor);
+                    document.getElementById('valorPagamento').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    
+                    if (valor === 0) {
+                        document.getElementById('textoPagamento').textContent = '🆓 Período de cortesia - Liberar saída sem cobrança';
+                        btnPagar.style.display = 'inline-block';
+                        btnPagar.textContent = 'Liberar Saída';
+                    } else {
+                        document.getElementById('textoPagamento').textContent = '💰 Valor a ser cobrado do cliente';
+                        btnPagar.style.display = 'inline-block';
+                        btnPagar.textContent = 'Confirmar Pagamento';
+                    }
+                    
+                    infoDisplay.style.display = 'block';
+                    resultado.style.display = 'none';
+                } else {
+                    infoDisplay.style.display = 'none';
+                    btnPagar.style.display = 'none';
+                    mostrarResultado(resultado, data.erro || 'Erro ao verificar valor', 'error');
+                }
+            } catch (error) {
+                infoDisplay.style.display = 'none';
+                btnPagar.style.display = 'none';
+                mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');
+            }
+        }
+
+        async function processarPagamento() {
+            const codigo = document.getElementById('codigoPagamento').value.trim();
+            const resultado = document.getElementById('resultadoPagamento');
+            const infoDisplay = document.getElementById('infoPagamento');
+            const btnPagar = document.getElementById('btnPagar');
+            
+            try {
+                const response = await fetch(`/tickets/pagar/${encodeURIComponent(codigo)}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (response.ok && data.sucesso) {
+                    mostrarResultado(resultado, '✅ ' + data.mensagem + ' - Ticket liberado para saída!', 'success');
+                    document.getElementById('codigoPagamento').value = '';
+                    infoDisplay.style.display = 'none';
+                    btnPagar.style.display = 'none';
+                } else {
+                    mostrarResultado(resultado, '❌ ' + (data.erro || 'Erro ao processar pagamento'), 'error');
+                }
+            } catch (error) {
+                mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');
+            }
+        }
+
+        function mostrarResultado(elemento, mensagem, tipo) {
+            elemento.textContent = mensagem;
+            elemento.className = `result ${tipo}`;
+            elemento.style.display = 'block';
+            
+            setTimeout(() => {
+                elemento.style.display = 'none';
+            }, 5000);
+        }
+
+        // Função para copiar código entre campos
+        document.getElementById('codigoCalculo').addEventListener('input', function() {
+            document.getElementById('codigoPagamento').value = this.value;
+        });
+    </script>
+</body>
+</html>

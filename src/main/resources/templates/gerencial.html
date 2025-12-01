@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estacionamento - Gerencial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav a {
+            text-decoration: none;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover {
+            background: #cbd5e0;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+
+        .result.error {
+            background: #fed7d7;
+            border: 1px solid #fc8181;
+            color: #742a2a;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .quick-stats {
+            background: #edf2f7;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .quick-stats h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .quick-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-item .number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .quick-item .label {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Módulo Gerencial</h1>
+            <p style="color: #718096;">Relatórios e estatísticas do estacionamento</p>
+        </div>
+
+        <div class="nav">
+            <a href="/">← Menu Principal</a>
+            <a href="/cancela">Cancela</a>
+            <a href="/operador">Operador</a>
+        </div>
+
+        <!-- Estatísticas Rápidas -->
+        <div class="quick-stats">
+            <h3>📈 Estatísticas Rápidas - Hoje</h3>
+            <div class="quick-grid" id="quickStats">
+                <div class="quick-item">
+                    <div class="number" id="hojeValor">R$ 0,00</div>
+                    <div class="label">Valor Recebido</div>
+                </div>
+                <div class="quick-item">
+                    <div class="number" id="hojeQuantidade">0</div>
+                    <div class="label">Tickets Pagos</div>
+                </div>
+                <div class="quick-item">
+                    <div class="number" id="hojeTicketMedio">R$ 0,00</div>
+                    <div class="label">Ticket Médio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório por Dia -->
+        <div class="section">
+            <h2>📅 Relatório por Dia</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dataDia">Data:</label>
+                    <input type="date" id="dataDia">
+                </div>
+                <button class="btn" onclick="gerarRelatorioDia()">Gerar Relatório</button>
+            </div>
+            
+            <div id="resultadoDia" class="result"></div>
+            
+            <div class="stats-container" id="statsDia" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-value" id="valorDia">R$ 0,00</div>
+                    <div class="stat-label">Total Recebido</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎫</div>
+                    <div class="stat-value" id="quantidadeDia">0</div>
+                    <div class="stat-label">Tickets Pagos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="mediaDia">R$ 0,00</div>
+                    <div class="stat-label">Ticket Médio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório por Mês -->
+        <div class="section">
+            <h2>📆 Relatório por Mês</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="anoMes">Ano:</label>
+                    <select id="anoMes">
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mesMes">Mês:</label>
+                    <select id="mesMes">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="gerarRelatorioMes()">Gerar Relatório</button>
+            </div>
+            
+            <div id="resultadoMes" class="result"></div>
+            
+            <div class="stats-container" id="statsMes" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-value" id="valorMes">R$ 0,00</div>
+                    <div class="stat-label">Total Recebido</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎫</div>
+                    <div class="stat-value" id="quantidadeMes">0</div>
+                    <div class="stat-label">Tickets Pagos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value" id="mediaMes">R$ 0,00</div>
+                    <div class="stat-label">Ticket Médio</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carregar estatísticas de hoje ao abrir a página
+        window.addEventListener('load', function() {
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('dataDia').value = hoje;
+            
+            // Definir mês atual
+            const agora = new Date();
+            document.getElementById('anoMes').value = agora.getFullYear();
+            document.getElementById('mesMes').value = agora.getMonth() + 1;
+            
+            carregarEstatisticasHoje();
+        });
+
+        async function carregarEstatisticasHoje() {
+            const hoje = new Date().toISOString().split('T')[0];
+            
+            try {
+                const response = await fetch(`/tickets/relatorio/dia?data=${hoje}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const valor = parseFloat(data.totalRecebido);
+                    const quantidade = data.quantidadeTickets;
+                    const media = quantidade > 0 ? valor / quantidade : 0;
+                    
+                    document.getElementById('hojeValor').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('hojeQuantidade').textContent = quantidade;
+                    document.getElementById('hojeTicketMedio').textContent = `R$ ${media.toFixed(2).replace('.', ',')}`;
+                }
+            } catch (error) {
+                console.log('Erro ao carregar estatísticas de hoje:', error);
+            }
+        }
+
+        async function gerarRelatorioDia() {
+            const data = document.getElementById('dataDia').value;
+            const resultado = document.getElementById('resultadoDia');
+            const statsDiv = document.getElementById('statsDia');
+            
+            if (!data) {
+                mostrarResultado(resultado, 'Por favor, selecione uma data', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/tickets/relatorio/dia?data=${data}`);
+                const dadosRelatorio = await response.json();
+
+                if (response.ok) {
+                    const valor = parseFloat(dadosRelatorio.totalRecebido);
+                    const quantidade = dadosRelatorio.quantidadeTickets;
+                    const media = quantidade > 0 ? valor / quantidade : 0;
+                    
+                    document.getElementById('valorDia').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('quantidadeDia').textContent = quantidade;
+                    document.getElementById('mediaDia').textContent = `R$ ${media.toFixed(2).replace('.', ',')}`;
+                    
+                    statsDiv.style.display = 'grid';
+                    resultado.style.display = 'none';
+                    
+                    const dataFormatada = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
+                    mostrarResultado(resultado, `✅ Relatório gerado para ${dataFormatada}`, 'success');
+                } else {
+                    statsDiv.style.display = 'none';
+                    mostrarResultado(resultado, dadosRelatorio.erro || 'Erro ao gerar relatório', 'error');
+                }
+            } catch (error) {
+                statsDiv.style.display = 'none';
+                mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');
+            }
+        }
+
+        async function gerarRelatorioMes() {
+            const ano = parseInt(document.getElementById('anoMes').value);
+            const mes = parseInt(document.getElementById('mesMes').value);
+            const resultado = document.getElementById('resultadoMes');
+            const statsDiv = document.getElementById('statsMes');
+
+            try {
+                const response = await fetch(`/tickets/relatorio/mes?ano=${ano}&mes=${mes}`);
+                const dadosRelatorio = await response.json();
+
+                if (response.ok) {
+                    const valor = parseFloat(dadosRelatorio.totalRecebido);
+                    const quantidade = dadosRelatorio.quantidadeTickets;
+                    const media = quantidade > 0 ? valor / quantidade : 0;
+                    
+                    document.getElementById('valorMes').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('quantidadeMes').textContent = quantidade;
+                    document.getElementById('mediaMes').textContent = `R$ ${media.toFixed(2).replace('.', ',')}`;
+                    
+                    statsDiv.style.display = 'grid';
+                    resultado.style.display = 'none';
+                    
+                    const nomesMeses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                                      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                    const mesNome = nomesMeses[mes - 1];
+                    
+                    mostrarResultado(resultado, `✅ Relatório gerado para ${mesNome}/${ano}`, 'success');
+                } else {
+                    statsDiv.style.display = 'none';
+                    mostrarResultado(resultado, dadosRelatorio.erro || 'Erro ao gerar relatório', 'error');
+                }
+            } catch (error) {
+                statsDiv.style.display = 'none';
+                mostrarResultado(resultado, 'Erro de conexão. Verifique se o servidor está funcionando.', 'error');
+            }
+        }
+
+        function mostrarResultado(elemento, mensagem, tipo) {
+            elemento.textContent = mensagem;
+            elemento.className = `result ${tipo}`;
+            elemento.style.display = 'block';
+            
+            setTimeout(() => {
+                elemento.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

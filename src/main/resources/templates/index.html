@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Estacionamento - Menu Principal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .menu-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 2rem;
+            text-decoration: none;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .menu-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .menu-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-desc {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Estacionamento</h1>
+        <p style="color: #718096; margin-bottom: 2rem;">Selecione o módulo desejado para acessar as funcionalidades do sistema</p>
+        
+        <div class="menu-grid">
+            <a href="/cancela" class="menu-card">
+                <div class="menu-icon">🚧</div>
+                <div class="menu-title">Cancela</div>
+                <div class="menu-desc">Entrada e saída de veículos</div>
+            </a>
+            
+            <a href="/operador" class="menu-card">
+                <div class="menu-icon">💰</div>
+                <div class="menu-title">Operador</div>
+                <div class="menu-desc">Cálculo e pagamento de tickets</div>
+            </a>
+            
+            <a href="/gerencial" class="menu-card">
+                <div class="menu-icon">📊</div>
+                <div class="menu-title">Gerencial</div>
+                <div class="menu-desc">Relatórios e estatísticas</div>
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>Trabalho Final - Programação de Software Aplicado</p>
+            <p>Sistema desenvolvido com Spring Boot + Thymeleaf</p>
+        </div>
+    </div>
+</body>
+</html>

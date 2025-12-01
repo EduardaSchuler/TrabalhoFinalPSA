@@ -22,37 +22,22 @@ public class Ticket {
     @Id
     @Column(name = "codigo", length = 50, nullable = false)
     private String codigo;
-    
-    @Column(name = "placa", length = 10, nullable = false)
+
+    @Column(nullable = false)
     private String placa;
-    
-    @Column(name = "entrada", nullable = false)
+
+    @Column(nullable = false)
     private LocalDateTime entrada;
-    
-    @Column(name = "saida")
+
     private LocalDateTime saida;
-    
-    @Column(name = "pago", nullable = false)
+
+    @Column(nullable = false)
     private boolean pago;
-    
-    @Column(name = "valor", precision = 10, scale = 2, nullable = false)
+
+    @Column(precision = 10, scale = 2)
     private BigDecimal valor;
 
-    // Construtor padrão para JPA
-    public Ticket() {
-        this.pago = false;
-        this.valor = BigDecimal.ZERO;
-    }
 
-    // Construtor para criação de novo ticket
-    public Ticket(String codigo, String placa, LocalDateTime entrada) {
-        this();
-        this.codigo = codigo;
-        this.placa = placa;
-        this.entrada = entrada;
-    }
-
-    // Métodos de acesso
     public String getCodigo() {
         return codigo;
     }

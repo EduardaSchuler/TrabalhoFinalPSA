@@ -1,13 +1,12 @@
--- Script de inicialização do banco de dados H2
--- Este arquivo será executado automaticamente pelo Spring Boot
+-- Tickets
+INSERT INTO TICKET (codigo, placa, entrada, saida, pago, valor) VALUES
+('ABC123', 'AAA-1111', '2025-12-01T08:00:00', '2025-12-01T09:30:00', TRUE, 9.50),
+('DEF456', 'BBB-2222', '2025-12-01T07:45:00', '2025-12-01T08:10:00', TRUE, 0.00),
+('GHI789', 'CCC-3333', '2025-12-01T06:30:00', '2025-12-01T08:00:00', TRUE, 9.50),
+('JKL012', 'DDD-4444', '2025-12-01T09:00:00', NULL, FALSE, 0.00);
 
--- Inserir alguns tickets de teste
-INSERT INTO TICKET (CODIGO, PLACA, ENTRADA, SAIDA, PAGO, VALOR) VALUES 
-('550e8400-e29b-41d4-a716-446655440001', 'ABC1234', DATEADD('HOUR', -2, NOW()), DATEADD('MINUTE', -30, NOW()), true, 9.50),
-('550e8400-e29b-41d4-a716-446655440002', 'DEF5678', DATEADD('HOUR', -1, NOW()), null, false, 0.00),
-('550e8400-e29b-41d4-a716-446655440003', 'GHI9012', DATEADD('HOUR', -3, NOW()), DATEADD('HOUR', -1, NOW()), true, 14.00),
-('550e8400-e29b-41d4-a716-446655440004', 'JKL3456', DATEADD('MINUTE', -45, NOW()), DATEADD('MINUTE', -15, NOW()), true, 5.00),
-('550e8400-e29b-41d4-a716-446655440005', 'MNO7890', DATEADD('MINUTE', -10, NOW()), null, false, 0.00),
-('550e8400-e29b-41d4-a716-446655440006', 'PQR1234', DATEADD('HOUR', -4, NOW()), DATEADD('MINUTE', -90, NOW()), true, 18.50),
-('550e8400-e29b-41d4-a716-446655440007', 'STU5678', DATEADD('MINUTE', -30, NOW()), null, false, 0.00),
-('550e8400-e29b-41d4-a716-446655440008', 'VWX9012', DATEADD('HOUR', -5, NOW()), DATEADD('HOUR', -2, NOW()), true, 23.00);
+-- Pagamentos (ligados por ticket_codigo)
+INSERT INTO PAGAMENTO (ticket_codigo, valor, data_pagamento) VALUES
+('ABC123', 9.50, '2025-12-01T09:30:00'),
+('DEF456', 0.00, '2025-12-01T08:10:00'),
+('GHI789', 9.50, '2025-12-01T08:00:00');

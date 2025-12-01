@@ -1,21 +1,16 @@
+
 package com.progsoftaplic.TrabalhoFinal.controller;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
+import com.progsoftaplic.TrabalhoFinal.domain.Pagamento;
+import com.progsoftaplic.TrabalhoFinal.dto.*;
+import com.progsoftaplic.TrabalhoFinal.service.TicketService;
+import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.Optional;
 
 import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
 import com.progsoftaplic.TrabalhoFinal.service.TicketService;
@@ -32,111 +27,54 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    // Ponto de acesso para cancela de entrada - Emissão de ticket
-    @PostMapping("/entrada")
-    public ResponseEntity<Ticket> emitirTicket(@RequestBody TicketRequestDTO request) {
-        try {
-            Ticket ticket = ticketService.criarTicket(request.getPlaca());
-            return ResponseEntity.ok(ticket);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    @PostMapping
+    public ResponseEntity<TicketResponseDTO> criarTicket(@Valid @RequestBody TicketCreateRequestDTO req) {
+        Ticket ticket = ticketService.criarTicket(req.getPlaca());
+        return ResponseEntity.ok(toDTO(ticket));
     }
 
-    // Ponto de acesso para cancela de saída - Validação de ticket
-    @PostMapping("/saida/{codigo}")
-    public ResponseEntity<Map<String, Object>> validarSaida(@PathVariable String codigo) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            boolean liberado = ticketService.validarSaida(codigo);
-            response.put("liberado", liberado);
-            response.put("codigo", codigo);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("liberado", false);
-            response.put("erro", "Ticket não encontrado");
-            return ResponseEntity.badRequest().body(response);
-        }
+    @GetMapping("/{codigo}")
+    public ResponseEntity<TicketResponseDTO> buscarTicket(@PathVariable String codigo) {
+        Optional<Ticket> opt = ticketService.buscarPorCodigo(codigo);
+        return opt.map(ticket -> ResponseEntity.ok(toDTO(ticket)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Ponto de acesso para cálculo de valor - Interface do operador
-    @GetMapping("/calcular/{codigo}")
-    public ResponseEntity<Map<String, Object>> calcularValor(@PathVariable String codigo) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            BigDecimal valor = ticketService.calcularValor(codigo);
-            response.put("codigo", codigo);
-            response.put("valor", valor);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("erro", "Ticket não encontrado");
-            return ResponseEntity.badRequest().body(response);
-        }
+    @GetMapping("/{codigo}/valor")
+    public ResponseEntity<TicketValorResponseDTO> calcularValor(@PathVariable String codigo) {
+        BigDecimal valor = ticketService.calcularValor(codigo);
+        return ResponseEntity.ok(new TicketValorResponseDTO(codigo, valor));
     }
 
-    // Ponto de acesso para pagamento - Interface do operador
-    @PostMapping("/pagar/{codigo}")
-    public ResponseEntity<Map<String, Object>> pagarTicket(@PathVariable String codigo) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            boolean sucesso = ticketService.pagarTicket(codigo);
-            response.put("sucesso", sucesso);
-            response.put("codigo", codigo);
-            if (sucesso) {
-                response.put("mensagem", "Ticket pago com sucesso");
-            } else {
-                response.put("mensagem", "Erro ao processar pagamento");
-            }
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("sucesso", false);
-            response.put("erro", "Ticket não encontrado");
-            return ResponseEntity.badRequest().body(response);
+    @PostMapping("/{codigo}/pay")
+    public ResponseEntity<PagamentoResponseDTO> pagar(@PathVariable String codigo) {
+        Pagamento pagamento = ticketService.pagarETrazerPagamento(codigo);
+        if (pagamento == null) {
+            return ResponseEntity.notFound().build();
         }
+        PagamentoResponseDTO dto = new PagamentoResponseDTO();
+        dto.setId(pagamento.getId());
+        dto.setTicketCodigo(pagamento.getTicketCodigo());
+        dto.setValor(pagamento.getValor());
+        dto.setDataPagamento(pagamento.getDataPagamento());
+        return ResponseEntity.ok(dto);
     }
 
-    // Ponto de acesso para relatório gerencial - Total por dia
-    @GetMapping("/relatorio/dia")
-    public ResponseEntity<Map<String, Object>> relatorioDia(@RequestParam String data) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            LocalDate date = LocalDate.parse(data);
-            LocalDateTime inicio = date.atStartOfDay();
-            LocalDateTime fim = date.plusDays(1).atStartOfDay();
-            
-            BigDecimal total = ticketService.totalRecebido(inicio, fim);
-            long quantidade = ticketService.quantidadeTicketsPagos(inicio, fim);
-            
-            response.put("data", data);
-            response.put("totalRecebido", total);
-            response.put("quantidadeTickets", quantidade);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("erro", "Data inválida");
-            return ResponseEntity.badRequest().body(response);
-        }
+    @PostMapping("/{codigo}/validate")
+    public ResponseEntity<ValidarSaidaResponseDTO> validarSaida(@PathVariable String codigo) {
+        boolean liberado = ticketService.validarSaida(codigo);
+        String motivo = liberado ? "Cancelas liberadas." : "Pagamento necessário ou ticket inválido.";
+        return ResponseEntity.ok(new ValidarSaidaResponseDTO(codigo, liberado, motivo));
     }
 
-    // Ponto de acesso para relatório gerencial - Total por mês
-    @GetMapping("/relatorio/mes")
-    public ResponseEntity<Map<String, Object>> relatorioMes(@RequestParam int ano, @RequestParam int mes) {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            YearMonth yearMonth = YearMonth.of(ano, mes);
-            LocalDateTime inicio = yearMonth.atDay(1).atStartOfDay();
-            LocalDateTime fim = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
-            
-            BigDecimal total = ticketService.totalRecebido(inicio, fim);
-            long quantidade = ticketService.quantidadeTicketsPagos(inicio, fim);
-            
-            response.put("ano", ano);
-            response.put("mes", mes);
-            response.put("totalRecebido", total);
-            response.put("quantidadeTickets", quantidade);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("erro", "Data inválida");
-            return ResponseEntity.badRequest().body(response);
-        }
+    private TicketResponseDTO toDTO(Ticket ticket) {
+        TicketResponseDTO dto = new TicketResponseDTO();
+        dto.setCodigo(ticket.getCodigo());
+        dto.setPlaca(ticket.getPlaca());
+        dto.setEntrada(ticket.getEntrada());
+        dto.setSaida(ticket.getSaida());
+        dto.setPago(ticket.isPago());
+        dto.setValor(ticket.getValor());
+        return dto;
     }
 }

@@ -2,7 +2,11 @@
 package com.progsoftaplic.TrabalhoFinal.service;
 
 import com.progsoftaplic.TrabalhoFinal.domain.Ticket;
+import com.progsoftaplic.TrabalhoFinal.domain.Pagamento;
 import com.progsoftaplic.TrabalhoFinal.repository.TicketRepository;
+import com.progsoftaplic.TrabalhoFinal.repository.PagamentoRepository;
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -13,35 +17,17 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Camada de Serviço - Lógica de Negócio do Sistema de Estacionamento
- * 
- * Esta classe implementa as regras de negócio do sistema, incluindo:
- * - Emissão de tickets
- * - Cálculo de valores
- * - Validação de saída
- * - Processamento de pagamentos
- * - Geração de relatórios
- */
 @Service
-@Transactional
 public class TicketService {
 
     private final TicketRepository ticketRepository;
+    private final PagamentoRepository pagamentoRepository;
 
-    // Constantes para regras de negócio
-    private static final int MINUTOS_CORTESIA = 15;
-    private static final BigDecimal VALOR_PRIMEIRA_HORA = new BigDecimal("5.00");
-    private static final BigDecimal VALOR_HORA_ADICIONAL = new BigDecimal("4.50");
-    private static final int MINUTOS_POR_HORA = 60;
-
-    public TicketService(TicketRepository ticketRepository) {
+    public TicketService(TicketRepository ticketRepository, PagamentoRepository pagamentoRepository) {
         this.ticketRepository = ticketRepository;
+        this.pagamentoRepository = pagamentoRepository;
     }
 
-    /**
-     * Cria um novo ticket de estacionamento para um veículo
-     */
     public Ticket criarTicket(String placa) {
         if (placa == null || placa.trim().isEmpty()) {
             throw new IllegalArgumentException("Placa não pode ser nula ou vazia");
@@ -57,9 +43,7 @@ public class TicketService {
         }
     }
 
-    /**
-     * Valida se um ticket pode ser usado para saída
-     */
+
     public boolean validarSaida(String codigo) {
         if (codigo == null || codigo.trim().isEmpty()) {
             throw new IllegalArgumentException("Código do ticket não pode ser nulo ou vazio");
@@ -99,9 +83,7 @@ public class TicketService {
         }
     }
 
-    /**
-     * Calcula o valor a ser pago por um ticket
-     */
+
     public BigDecimal calcularValor(String codigo) {
         if (codigo == null || codigo.trim().isEmpty()) {
             throw new IllegalArgumentException("Código do ticket não pode ser nulo ou vazio");
@@ -166,35 +148,53 @@ public class TicketService {
             
             ticketRepository.save(ticket);
             return true;
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao processar pagamento: " + e.getMessage(), e);
+        }
+
+        // Se não for cortesia, só libera se já estiver pago
+        ticketRepository.save(ticket);
+        return ticket.isPago();
+    }
+
+    public BigDecimal calcularValor(String codigo) {
+        Optional<Ticket> optTicket = ticketRepository.findById(codigo);
+        if (optTicket.isEmpty()) return BigDecimal.ZERO;
+
+        Ticket ticket = optTicket.get();
+        LocalDateTime agora = LocalDateTime.now();
+        long minutos = Duration.between(ticket.getEntrada(), agora).toMinutes();
+
+        if (minutos <= 15) {
+            return BigDecimal.ZERO; // cortesia
+        } else if (minutos <= 60) {
+            return BigDecimal.valueOf(5.00); // até 1 hora
+        } else {
+            long horasExtras = (minutos - 60) / 60;
+            return BigDecimal.valueOf(5.00 + (horasExtras * 4.50));
         }
     }
 
-    /**
-     * Calcula o total recebido em um período
-     */
-    @Transactional(readOnly = true)
-    public BigDecimal totalRecebido(LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) {
-            throw new IllegalArgumentException("Datas de início e fim não podem ser nulas");
-        }
-        
-        if (inicio.isAfter(fim)) {
-            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
-        }
+    public boolean pagarTicket(String codigo) {
+        Optional<Ticket> optTicket = ticketRepository.findById(codigo);
+        if (optTicket.isEmpty()) return false;
 
-        try {
-            List<Ticket> pagos = ticketRepository.findByPagoTrueAndSaidaBetween(inicio, fim);
-            return pagos.stream()
-                    .map(Ticket::getValor)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .setScale(2, RoundingMode.HALF_UP);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao calcular total recebido: " + e.getMessage(), e);
-        }
+        Ticket ticket = optTicket.get();
+        BigDecimal valor = calcularValor(codigo);
+        ticket.setValor(valor);
+        ticket.setPago(true);
+        ticketRepository.save(ticket);
+
+        // Registrar pagamento
+        Pagamento pagamento = new Pagamento(codigo, valor);
+        pagamentoRepository.save(pagamento);
+
+        return true;
+    }
+
+    public BigDecimal totalRecebido(LocalDateTime inicio, LocalDateTime fim) {
+        List<Pagamento> pagamentos = pagamentoRepository.findByDataPagamentoBetween(inicio, fim);
+        return pagamentos.stream()
+                .map(Pagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -202,34 +202,25 @@ public class TicketService {
      */
     @Transactional(readOnly = true)
     public long quantidadeTicketsPagos(LocalDateTime inicio, LocalDateTime fim) {
-        if (inicio == null || fim == null) {
-            throw new IllegalArgumentException("Datas de início e fim não podem ser nulas");
-        }
+        return pagamentoRepository.findByDataPagamentoBetween(inicio, fim).size();
+    }
+    
         
-        if (inicio.isAfter(fim)) {
-            throw new IllegalArgumentException("Data de início não pode ser posterior à data de fim");
-        }
-
-        try {
-            return ticketRepository.findByPagoTrueAndSaidaBetween(inicio, fim).size();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao contar tickets pagos: " + e.getMessage(), e);
-        }
+    public Optional<Ticket> buscarPorCodigo(String codigo) {
+        return ticketRepository.findById(codigo);
     }
 
-    /**
-     * Busca ticket por código
-     */
-    @Transactional(readOnly = true)
-    public Optional<Ticket> buscarPorCodigo(String codigo) {
-        if (codigo == null || codigo.trim().isEmpty()) {
-            return Optional.empty();
-        }
+    public Pagamento pagarETrazerPagamento(String codigo) {
+        Optional<Ticket> optTicket = ticketRepository.findById(codigo);
+        if (optTicket.isEmpty()) return null;
 
-        try {
-            return ticketRepository.findById(codigo);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao buscar ticket: " + e.getMessage(), e);
-        }
+        Ticket ticket = optTicket.get();
+        BigDecimal valor = calcularValor(codigo);
+        ticket.setValor(valor);
+        ticket.setPago(true);
+        ticketRepository.save(ticket);
+
+        Pagamento pagamento = new Pagamento(codigo, valor);
+        return pagamentoRepository.save(pagamento);
     }
 }

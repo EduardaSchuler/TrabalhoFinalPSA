@@ -42,6 +42,7 @@ public class TicketService {
     }
 
     public BigDecimal calcularValor(String codigo) {
+        if (codigo == null) return BigDecimal.ZERO;
         Optional<Ticket> optTicket = ticketRepository.findById(codigo);
         if (optTicket.isEmpty()) return BigDecimal.ZERO;
 
@@ -101,6 +102,7 @@ public class TicketService {
     }
 
     public boolean pagarTicket(String codigo) {
+        if (codigo == null) return false;
         Optional<Ticket> optTicket = ticketRepository.findById(codigo);
         if (optTicket.isEmpty()) return false;
 
@@ -130,10 +132,12 @@ public class TicketService {
     }
         
     public Optional<Ticket> buscarPorCodigo(String codigo) {
+        if (codigo == null) return Optional.empty();
         return ticketRepository.findById(codigo);
     }
 
     public Pagamento pagarETrazerPagamento(String codigo) {
+        if (codigo == null) return null;
         Optional<Ticket> optTicket = ticketRepository.findById(codigo);
         if (optTicket.isEmpty()) return null;
 

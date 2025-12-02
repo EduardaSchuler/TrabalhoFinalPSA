@@ -37,6 +37,9 @@ public class Ticket {
     @Column(precision = 10, scale = 2)
     private BigDecimal valor;
 
+    // Construtor padrão necessário para JPA/Hibernate
+    public Ticket() {}
+
     public Ticket(String codigo, String placa, LocalDateTime entrada) {
         this.codigo = codigo;
         this.placa = placa;

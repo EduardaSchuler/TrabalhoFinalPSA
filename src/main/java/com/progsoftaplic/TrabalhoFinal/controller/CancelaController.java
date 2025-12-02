@@ -15,11 +15,7 @@ import com.progsoftaplic.TrabalhoFinal.service.dto.TicketCreateRequestDTO;
 import com.progsoftaplic.TrabalhoFinal.service.dto.TicketResponseDTO;
 import com.progsoftaplic.TrabalhoFinal.service.dto.ValidarSaidaResponseDTO;
 
-/**
- * Controller específico para serviços web das cancelas
- * Atende ao requisito: "O sistema deve implementar a lógica de controle 
- * utilizada pelas cancelas através de um serviço web"
- */
+
 @RestController
 @RequestMapping("/cancela")
 @CrossOrigin(origins = "*")
@@ -31,11 +27,6 @@ public class CancelaController {
         this.ticketService = ticketService;
     }
 
-    /**
-     * Serviço web para cancela de entrada
-     * Caso de uso: "Emissão de ticket de estacionamento, contendo um código, 
-     * placa do automóvel e data/horário de entrada"
-     */
     @PostMapping("/entrada")
     public ResponseEntity<TicketResponseDTO> emitirTicket(@Validated @RequestBody TicketCreateRequestDTO req) {
         try {
@@ -49,11 +40,6 @@ public class CancelaController {
         }
     }
 
-    /**
-     * Serviço web para cancela de saída
-     * Caso de uso: "Validação de ticket para liberação da cancela. 
-     * O sistema deve receber o código do ticket e verificar se o mesmo está liberado"
-     */
     @PostMapping("/saida/{codigo}")
     public ResponseEntity<ValidarSaidaResponseDTO> validarSaida(@PathVariable String codigo) {
         try {

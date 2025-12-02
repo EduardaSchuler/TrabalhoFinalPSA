@@ -363,13 +363,23 @@
         }
 
         async function gerarRelatorioDia() {
-            const data = document.getElementById('dataDia').value;
+            const dataInput = document.getElementById('dataDia').value;
             const resultado = document.getElementById('resultadoDia');
             const statsDiv = document.getElementById('statsDia');
             
-            if (!data) {
+            if (!dataInput) {
                 mostrarResultado(resultado, 'Por favor, selecione uma data', 'error');
                 return;
+            }
+
+            // Garantir que a data está no formato correto (YYYY-MM-DD)
+            let data;
+            if (dataInput.includes('-') && dataInput.length === 10) {
+                // Já está no formato correto
+                data = dataInput;
+            } else {
+                // Converter para formato correto
+                data = new Date(dataInput).toISOString().split('T')[0];
             }
 
             try {
@@ -407,7 +417,7 @@
             const statsDiv = document.getElementById('statsMes');
 
             try {
-                const response = await fetch(`/report/mes?mes=${ano}-${String(mes).padStart(2, '0')}`);
+                const response = await fetch(`/report/mes?ano=${ano}&mes=${mes}`);
                 const dadosRelatorio = await response.json();
 
                 if (response.ok) {

@@ -1,0 +1,83 @@
+A) Data de entrega e apresentações: 01/12/2025
+ 
+B) Objetivo:
+O objetivo é consolidar o conhecimento sobre conceitos e construção de sistemas web (cliente-servidor e serviços) 
+empresariais orientados a objetos em arquiteturas cliente-servidor multicamadas através da exploração dos tópicos 
+discutidos na disciplina de Programação de Software Aplicado.
+C) Enunciado do problema:
+Estamos interessados em um sistema de informação para o controle do estacionamento pago de centros comerciais 
+cujo funcionamento se baseia em cancelas.
+O sistema deve permitir o seguintes caso de uso por parte da cancela de entrada:
+• Emissão de ticket de estacionamento, contendo um código (passível de transformação para código de barras
+ou qr-code), placa do automóvel e data/horário de entrada do automóvel.
+O sistema deve permitir o seguinte caso de uso por parte da cancela de saída:
+• Validação de ticket para liberação da cancela. O sistema deve receber o código do ticket e verificar se o 
+mesmo está liberado a fim da cancela ser aberta.
+O sistema deve permitir os seguintes casos de uso por parte do operador do caixa de cobrança através de uma 
+interface gráfica de usuário:
+• Cálculo do valor a ser pago para a liberação de ticket no guichê de pagamento. O cálculo do valor é realizado 
+de acordo com as seguintes regras:
+o 15 minutos de cortesia. Se o ticket for utilizado para liberação da cancela dentro do período de 15 
+minutos após a entrada, o sistema deve liberar a saída, sem a necessidade de efetuar a validação 
+via pagamento.
+o Até 1 hora (inclusive) de permanência: o valor é fixo, sendo atualmente de R$ 5,00.
+o Acima de 1 hora: o valor é de R$4,50 acrescido a cada parcela de hora extra.
+• Liberação de ticket com pagamento. Após o recebimento do valor devido, o funcionário do guichê solicita ao 
+sistema a liberação do ticket.
+IMPORTANTE: O sistema deve implementar a lógica de controle utilizada pelas cancelas através de um serviço web.
+Ou seja, as funções de negócio que uma cancela necessita acessar para seu funcionamento são endpoints de um 
+serviço web.
+O sistema deve possuir também um módulo gerencial via interface gráfica de usuário que permita obter as seguintes 
+informações relativas ao uso do estacionamento:
+• Valor total recebido de pagamentos de estadia no estacionamento. Filtros de busca: por dia e por mês.
+• Número de tickets pagos. Filtros de busca: por dia e por mês.
+D) Requisitos:
+Os seguintes itens são obrigatórios na implementação do sistema:
+• Arquitetura multicamada com separação de responsabilidades.
+• Uso dos padrões de projeto explorados na disciplina de Programação de Software Aplicado sendo 
+obrigatoriamente:
+o Uso do padrão “MVC” na camada de apresentação;
+o Uso do padrão “Domain Model” na camada de domínio;
+o Uso do padrão “Repository” na camada de persistência.
+• O grupo poderá utilizar outros padrões que julgar necessário para atender os requisitos da aplicação.
+• Persistência em base de dados relacional.
+• A camada de persistência deve ser implementada utilizando um mapeador objeto-relacional.
+• Tratamento correto do encapsulamento de exceções entre as camadas.
+• A base de dados deverá ter sido previamente populada com valores necessários para a apresentação 
+das funcionalidades. Um script com os dados necessários deverá ser entregue de forma conjunta com os 
+demais códigos da aplicação.
+E) Desenvolvimento, apresentação e avaliação do trabalho:
+• O trabalho pode ser realizado individualmente ou em grupos de, no máximo, 3 alunos.
+• Os trabalhos serão apresentados no laboratório. Durante a apresentação, TODOS os alunos devem estar 
+presentes e aptos a responder às perguntas. Respostas insatisfatórias por um aluno ou a sua ausência 
+acarretarão descontos na nota final.
+• A apresentação do trabalho é de inteira responsabilidade dos alunos (configuração da máquina, do 
+ambiente de software, base de dados, etc.) e o código-fonte utilizado deverá ser o mesmo entregue ao 
+professor. É tarefa do grupo garantir que o sistema esteja apto a ser executado no dia da apresentação.
+• Sistemas que não consigam ser executados ou apresentados no dia da apresentação receberão nota 
+zero.
+• Mensagens de erro apresentadas durante a execução do programa, mesmo que a aplicação não pare de 
+executar, serão consideradas como erros de execução, e acarretarão descontos na nota do trabalho.
+• Em caso de erro de sintaxe (compilação), o peso final do trabalho será valorado em zero.
+• Em caso de erro de semântica (conteúdo), o peso final do trabalho sofrerá uma redução.
+• Os trabalhos serão avaliados de acordo com critérios a serem estabelecidos pelo professor da disciplina, 
+considerando o que é pedido no enunciado e o que foi realizado com sucesso pelo sistema. Também 
+serão avaliadas a modelagem do sistema (correta criação das classes necessárias, com seus atributos e 
+métodos, encapsulamento, e correto estabelecimento de relações entre as classes) e sua implementação 
+de acordo com os conceitos de orientação a objetos e arquitetura multicamada.
+• Trabalhos copiados resultarão em nota zero para todos os alunos envolvidos.
+F) Entrega do trabalho:
+• Todos os arquivos necessários a execução do sistema, bem como os arquivos-fonte, scripts de banco de 
+dados e os arquivos de documentação, deverão ser empacotados em um único arquivo (.zip) e submetidos 
+através do sistema Moodle até a data de entrega.
+• Devem fazer parte da documentação pelo menos:
+o Diagrama de classes do sistema. O diagrama de classes deverá ser entregue junto com 
+documentação em texto salientando os pontos onde foram utilizados padrões de projeto na 
+implementação da solução. É importante que as classes estejam agrupadas em pacotes de acordo 
+com a arquitetura de camadas do sistema.
+o Diagrama da base relacional do sistema.
+o Os diagramas devem estar disponíveis em imagens com resolução suficiente e de fácil visualização. 
+Não serão aceitos diagramas que estejam em formato original da ferramenta de desenho (como Visio, 
+Astah, e outros).
+• Não serão aceitos trabalhos enviados por correio eletrônico.
+• Não serão aceitos trabalhos enviados fora do prazo estabelecido

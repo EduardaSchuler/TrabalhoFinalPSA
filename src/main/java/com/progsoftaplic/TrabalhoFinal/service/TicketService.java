@@ -54,8 +54,10 @@ public class TicketService {
         } else if (minutos <= 60) {
             return BigDecimal.valueOf(5.00); // até 1 hora
         } else {
-            long horasExtras = (minutos - 60) / 60;
-            return BigDecimal.valueOf(5.00 + (horasExtras * 4.50));
+            // Cada fração de hora conta como hora completa
+            long horasExtras = (long) Math.ceil((minutos - 60) / 60.0);
+            double valorTotal = 5.00 + (horasExtras * 4.50);
+            return BigDecimal.valueOf(valorTotal);
         }
     }
 
@@ -120,6 +122,11 @@ public class TicketService {
         return pagamentos.stream()
                 .map(Pagamento::getValor)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    public Integer contarTicketsPagos(LocalDateTime inicio, LocalDateTime fim) {
+        List<Pagamento> pagamentos = pagamentoRepository.findByDataPagamentoBetween(inicio, fim);
+        return pagamentos.size();
     }
         
     public Optional<Ticket> buscarPorCodigo(String codigo) {
